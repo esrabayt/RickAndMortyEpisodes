@@ -4,11 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.esrakaya.rickandmortyepisodes.R
 import com.esrakaya.rickandmortyepisodes.databinding.FragmentEpisodeListBinding
+import com.esrakaya.rickandmortyepisodes.utils.collectEvent
+import com.esrakaya.rickandmortyepisodes.utils.collectState
+import com.esrakaya.rickandmortyepisodes.utils.showError
 import com.esrakaya.rickandmortyepisodes.utils.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,7 +23,9 @@ class EpisodeListFragment : Fragment() {
 
     private val viewModel: EpisodeListViewModel by viewModels()
 
-    private val episodeAdapter by lazy { EpisodeAdapter() }
+    private val episodeAdapter by lazy {
+        EpisodeAdapter { viewModel.onItemClicked(it) }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,27 +36,32 @@ class EpisodeListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
-        observeLiveData()
+        collectState(viewModel.uiState) { renderView(it) }
+        collectEvent(viewModel.uiEvent) { handleEvent(it) }
+        viewModel.fetch()
     }
 
     private fun initView() = with(binding) {
         rvEpisodes.adapter = episodeAdapter
+    }
 
-        episodeAdapter.onItemClicked = { character ->
-            character.let {
+    private fun handleEvent(uiEvent: EpisodeListUiEvent) {
+        when (uiEvent) {
+            is EpisodeListUiEvent.NavigateToDetail -> {
                 findNavController().navigate(
-                    EpisodeListFragmentDirections.navigateToDetail("0")
+                    EpisodeListFragmentDirections.navigateToDetail(uiEvent.id)
                 )
             }
+
+            is EpisodeListUiEvent.ShowError -> requireContext().showError(uiEvent.message)
         }
     }
 
-    private fun observeLiveData() {
-        val list = listOf(
-            EpisodeViewData(0, "test1"),
-            EpisodeViewData(1, "test2")
-        )
-
-        episodeAdapter.submitList(list)
+    private fun renderView(uiState: EpisodeListUiState) = with(binding) {
+        tvEmptyState.isVisible = uiState.isEmptyStateVisible
+        progress.isVisible = uiState.isLoading
+        rvEpisodes.isVisible = uiState.isEmptyStateVisible.not()
+        episodeAdapter.submitList(uiState.items)
     }
+
 }

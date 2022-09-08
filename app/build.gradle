@@ -4,6 +4,8 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'androidx.navigation.safeargs.kotlin'
+    id("com.apollographql.apollo3").version("3.5.0")
+
 }
 
 android {
@@ -38,6 +40,10 @@ android {
     }
 }
 
+apollo {
+    useVersion2Compat()
+}
+
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.5.1'
@@ -57,6 +63,9 @@ dependencies {
     // Navigation
     implementation "androidx.navigation:navigation-fragment-ktx:2.5.2"
     implementation "androidx.navigation:navigation-ui-ktx:2.5.2"
+
+    // Apollo
+    implementation "com.apollographql.apollo3:apollo-runtime:3.5.0"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

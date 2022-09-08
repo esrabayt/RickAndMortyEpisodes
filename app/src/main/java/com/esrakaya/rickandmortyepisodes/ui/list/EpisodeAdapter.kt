@@ -4,14 +4,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.esrakaya.rickandmortyepisodes.EpisodeListQuery
 import com.esrakaya.rickandmortyepisodes.databinding.ItemEpisodeBinding
 import com.esrakaya.rickandmortyepisodes.utils.inflater
 
-class EpisodeAdapter : ListAdapter<EpisodeViewData, EpisodeAdapter.ViewHolder>(
-    EpisodeViewData.DIFF_CALLBACK
-) {
-
-    var onItemClicked: ((EpisodeViewData) -> Unit)? = null
+class EpisodeAdapter(
+    private val onItemClicked: ((String?) -> Unit)? = null
+) : ListAdapter<EpisodeListQuery.Result, EpisodeAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -26,35 +25,29 @@ class EpisodeAdapter : ListAdapter<EpisodeViewData, EpisodeAdapter.ViewHolder>(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
         holder.bind(item)
-        holder.binding.root.setOnClickListener { onItemClicked?.invoke(getItem(position)) }
     }
 
     inner class ViewHolder(
         val binding: ItemEpisodeBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: EpisodeViewData) = with(binding) {
+        fun bind(item: EpisodeListQuery.Result) = with(binding) {
             tvName.text = item.name
+            root.setOnClickListener { onItemClicked?.invoke(item.id) }
         }
     }
-}
-
-data class EpisodeViewData(
-    val id: Int,
-    val name: String
-) {
 
     companion object {
         val DIFF_CALLBACK
-            get() = object : DiffUtil.ItemCallback<EpisodeViewData>() {
+            get() = object : DiffUtil.ItemCallback<EpisodeListQuery.Result>() {
                 override fun areItemsTheSame(
-                    oldItem: EpisodeViewData,
-                    newItem: EpisodeViewData
+                    oldItem: EpisodeListQuery.Result,
+                    newItem: EpisodeListQuery.Result
                 ) = oldItem.id == newItem.id
 
                 override fun areContentsTheSame(
-                    oldItem: EpisodeViewData,
-                    newItem: EpisodeViewData
+                    oldItem: EpisodeListQuery.Result,
+                    newItem: EpisodeListQuery.Result
                 ) = oldItem == newItem
             }
     }
