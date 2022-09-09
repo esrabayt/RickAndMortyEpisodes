@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">RickAndMortyEpisodes</string>
     <string name="general_error">Bir hata oluştu</string>
+    <string name="name">Name:</string>
+    <string name="air_date">Air Date:</string>
+    <string name="episode_code">Episode Code:</string>
+    <string name="no_episodes_found">No episodes found</string>
 </resources>

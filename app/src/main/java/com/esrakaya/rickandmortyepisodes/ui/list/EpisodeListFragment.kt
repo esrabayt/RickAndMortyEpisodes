@@ -8,6 +8,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.esrakaya.rickandmortyepisodes.R
 import com.esrakaya.rickandmortyepisodes.databinding.FragmentEpisodeListBinding
 import com.esrakaya.rickandmortyepisodes.utils.collectEvent
@@ -15,6 +16,7 @@ import com.esrakaya.rickandmortyepisodes.utils.collectState
 import com.esrakaya.rickandmortyepisodes.utils.showError
 import com.esrakaya.rickandmortyepisodes.utils.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class EpisodeListFragment : Fragment() {
@@ -42,7 +44,10 @@ class EpisodeListFragment : Fragment() {
     }
 
     private fun initView() = with(binding) {
-        rvEpisodes.adapter = episodeAdapter
+        rvEpisodes.apply {
+            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+            adapter = episodeAdapter
+        }
     }
 
     private fun handleEvent(uiEvent: EpisodeListUiEvent) {
@@ -60,7 +65,6 @@ class EpisodeListFragment : Fragment() {
     private fun renderView(uiState: EpisodeListUiState) = with(binding) {
         tvEmptyState.isVisible = uiState.isEmptyStateVisible
         progress.isVisible = uiState.isLoading
-        rvEpisodes.isVisible = uiState.isEmptyStateVisible.not()
         episodeAdapter.submitList(uiState.items)
     }
 

@@ -32,7 +32,7 @@ class EpisodeAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: EpisodeListQuery.Result) = with(binding) {
-            tvName.text = item.name
+            tvEpisodeName.text = item.name
             root.setOnClickListener { onItemClicked?.invoke(item.id) }
         }
     }
