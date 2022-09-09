@@ -8,9 +8,7 @@ class FetchEpisodeList @Inject constructor(
     private val episodeRepository: EpisodeRepository
 ) {
 
-    suspend operator fun invoke(): List<EpisodeListQuery.Result> {
-        return episodeRepository.getEpisodeList().data?.episodes?.results
-            ?.mapNotNull { it }
-            .orEmpty()
+    suspend operator fun invoke(page: Int?): EpisodeListQuery.Episodes? {
+        return episodeRepository.getEpisodeList(page).data?.episodes
     }
 }

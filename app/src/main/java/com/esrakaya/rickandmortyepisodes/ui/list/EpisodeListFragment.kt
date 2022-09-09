@@ -9,12 +9,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.esrakaya.rickandmortyepisodes.R
 import com.esrakaya.rickandmortyepisodes.databinding.FragmentEpisodeListBinding
-import com.esrakaya.rickandmortyepisodes.utils.collectEvent
-import com.esrakaya.rickandmortyepisodes.utils.collectState
-import com.esrakaya.rickandmortyepisodes.utils.showError
-import com.esrakaya.rickandmortyepisodes.utils.viewBinding
+import com.esrakaya.rickandmortyepisodes.utils.*
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -28,6 +27,8 @@ class EpisodeListFragment : Fragment() {
     private val episodeAdapter by lazy {
         EpisodeAdapter { viewModel.onItemClicked(it) }
     }
+
+    private var pagingScrollListener: PagingScrollListener? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,11 +44,33 @@ class EpisodeListFragment : Fragment() {
         viewModel.fetch()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        pagingScrollListener = null
+    }
+
     private fun initView() = with(binding) {
         rvEpisodes.apply {
+            setPagingListener()
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
             adapter = episodeAdapter
         }
+    }
+
+    private fun RecyclerView.setPagingListener() {
+        pagingScrollListener?.let { removeOnScrollListener(it) }
+        layoutManager?.let { addOnScrollListener(it.createPagingListener()) }
+    }
+
+    private fun RecyclerView.LayoutManager.createPagingListener(): PagingScrollListener {
+        return object : PagingScrollListener(this@createPagingListener as LinearLayoutManager) {
+            override val lockLoadMore: Boolean
+                get() = viewModel.uiState.value.lockLoadMore
+
+            override fun loadMoreItems() {
+                viewModel.fetch()
+            }
+        }.also(::pagingScrollListener::set)
     }
 
     private fun handleEvent(uiEvent: EpisodeListUiEvent) {

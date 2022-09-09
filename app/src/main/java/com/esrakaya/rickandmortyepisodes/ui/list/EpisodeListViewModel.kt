@@ -25,8 +25,18 @@ class EpisodeListViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            runCatching { fetchEpisodeList() }
-                .onSuccess { _uiState.update { state -> state.copy(items = it) } }
+            runCatching { fetchEpisodeList(_uiState.value.page) }
+                .onSuccess {
+                    val newItems = it?.results?.mapNotNull { it }.orEmpty()
+                    val newPage = it?.info?.next
+
+                    _uiState.update { state ->
+                        state.copy(
+                            items = state.items.orEmpty() + newItems,
+                            page = newPage
+                        )
+                    }
+                }
                 .onFailure { _uiEvent.emit(ShowError(it.message)) }
                 .also { _uiState.update { it.copy(isLoading = false) } }
         }

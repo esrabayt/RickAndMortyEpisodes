@@ -1,6 +1,10 @@
-query EpisodeList{
-    episodes
+query EpisodeList($page:Int){
+    episodes(page:$page)
     {
+        info
+        {
+            next
+        }
         results
         {
             id
