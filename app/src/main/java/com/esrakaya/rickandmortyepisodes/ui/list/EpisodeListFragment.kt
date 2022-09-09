@@ -50,6 +50,13 @@ class EpisodeListFragment : Fragment() {
     }
 
     private fun initView() = with(binding) {
+
+        swipeToRefreshLayout.setOnRefreshListener {
+            swipeToRefreshLayout.isRefreshing = false
+            rvEpisodes.setPagingListener()
+            viewModel.onRefresh()
+        }
+
         rvEpisodes.apply {
             setPagingListener()
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))

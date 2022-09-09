@@ -51,4 +51,9 @@ class EpisodeListViewModel @Inject constructor(
             }
         }
     }
+
+    fun onRefresh() {
+        _uiState.update { EpisodeListUiState() }
+        fetch()
+    }
 }
